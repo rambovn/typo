@@ -76,6 +76,22 @@ class Article < Content
     self.permalink = self.title.to_permalink if self.permalink.nil? or self.permalink.empty?
   end
 
+  def merge_with(other_article_id)
+    tomerge = Article.find_by_id(other_article_id)
+    if not self.id or not tomerge.id
+      return false
+    end
+
+    self.body = self.body + "\n\n" + tomerge.body
+    self.comments << tomerge.comments
+    self.save!
+
+    tomerge = Article.find_by_id(other_article_id)
+    tomerge.destroy
+
+    return true
+  end 
+
   def has_child?
     Article.exists?({:parent_id => self.id})
   end
